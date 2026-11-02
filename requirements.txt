@@ -1,0 +1,7 @@
+fastapi
+uvicorn
+pillow
+python-multipart
+httpx
+torch==2.15.0
+transformers

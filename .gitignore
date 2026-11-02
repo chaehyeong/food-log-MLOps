@@ -1,0 +1,31 @@
+# Python 캐시 및 컴파일 결과
+__pycache__/
+*.py[cod]
+*$py.class
+
+# 테스트/빌드 및 로컬 개발 파일
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.log
+.env
+.env.*
+
+# 로컬 음식 기록 및 업로드 이미지
+data/foodlog.sqlite3
+data/uploads/
+
+# 테스트용 샘플 이미지
+sample.jpg
+
+# Hugging Face/PyTorch 모델 캐시가 프로젝트 안에 생성되는 경우
+.cache/
+cache/
+huggingface-cache/
+
+# IDE 및 OS 파일
+.vscode/
+.idea/
+*.swp
+Thumbs.db
+Desktop.ini

@@ -4,7 +4,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     HF_HOME=/opt/huggingface \
-    TRANSFORMERS_CACHE=/opt/huggingface/transformers
+    TRANSFORMERS_CACHE=/opt/huggingface/transformers \
+    FOOD_MODEL_ID=destinykim679/food-log-mlops-swin-food101 \
+    FOOD_MODEL_REVISION=d38f4f74b4b5d1a9de3e74161b84486ea7e9db8e
 
 WORKDIR /app
 
@@ -29,7 +31,7 @@ from model import classify
 sample = Path('/tmp/model-smoke.jpg')
 Image.new('RGB', (224, 224), (128, 128, 128)).save(sample)
 result = classify(sample)
-assert result['model_version'] == 'nateraw/food'
+assert result['model_version'].startswith('destinykim679/food-log-mlops-swin-food101@')
 assert len(result['predictions']) == 3
 print('Model smoke test passed:', result['model_version'])
 sample.unlink()

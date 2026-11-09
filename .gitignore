@@ -38,3 +38,12 @@ run-helper.sh
 svc.sh
 config.sh
 config.cmd
+
+# Evaluation data, caches, reports, and monitoring logs
+mlops-data/
+evaluation-results.json
+evaluation-tta-results.json
+evaluation-tta-results.json
+evaluation-multicrop-results.json
+evaluation-*.json
+monitoring-*.log

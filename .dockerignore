@@ -1,0 +1,11 @@
+.git
+.github
+__pycache__
+*.py[cod]
+.cache
+cache
+huggingface-cache
+data/foodlog.sqlite3
+data/uploads
+sample.jpg
+*.md

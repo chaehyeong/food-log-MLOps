@@ -55,7 +55,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Pull published image
-        shell: powerhell
+        shell: powershell
         run: docker pull $env:IMAGE
 
       - name: Replace container and verify service

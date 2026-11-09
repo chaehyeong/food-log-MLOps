@@ -37,3 +37,72 @@ jobs:
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  deploy-to-self-hosted-runner:
+    name: Deploy to local Docker host
+    needs: build-and-push
+    runs-on: [self-hosted, Windows, X64]
+    timeout-minutes: 15
+    env:
+      IMAGE: ${{ secrets.DOCKERHUB_USERNAME }}/food-log-mlops:${{ github.sha }}
+      CONTAINER: food-log-mlops
+      BACKUP_CONTAINER: food-log-mlops-previous
+    steps:
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Pull published image
+        shell: pwsh
+        run: docker pull $env:IMAGE
+
+      - name: Replace container and verify service
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $container = $env:CONTAINER
+          $backup = $env:BACKUP_CONTAINER
+          $image = $env:IMAGE
+          $hadPrevious = $false
+
+          if (docker ps -a --format '{{.Names}}' | Select-String -SimpleMatch $backup) {
+            docker rm -f $backup | Out-Null
+          }
+          if (docker ps -a --format '{{.Names}}' | Select-String -SimpleMatch $container) {
+            docker stop $container | Out-Null
+            docker rename $container $backup
+            $hadPrevious = $true
+          }
+
+          try {
+            docker run -d --name $container --restart unless-stopped `
+              -p 8000:8000 -v food-log-mlops-data:/app/data $image | Out-Null
+
+            $ready = $false
+            for ($i = 0; $i -lt 30; $i++) {
+              Start-Sleep -Seconds 2
+              $state = docker inspect -f '{{.State.Status}}' $container 2>$null
+              if ($state -eq 'exited' -or $state -eq 'dead') { throw 'New container exited during startup.' }
+              try {
+                Invoke-WebRequest -Uri 'http://127.0.0.1:8000/docs' -UseBasicParsing -TimeoutSec 3 | Out-Null
+                $ready = $true
+                break
+              } catch {}
+            }
+            if (-not $ready) { throw 'Service did not respond on http://127.0.0.1:8000/docs.' }
+
+            if ($hadPrevious) { docker rm -f $backup | Out-Null }
+            Write-Host "Deployment verified: $image"
+          } catch {
+            Write-Host 'Deployment failed. Container logs:'
+            docker logs $container 2>&1
+            docker rm -f $container 2>$null
+            if ($hadPrevious) {
+              docker rename $backup $container
+              docker start $container | Out-Null
+              Write-Host 'Previous container restored.'
+            }
+            throw
+          }

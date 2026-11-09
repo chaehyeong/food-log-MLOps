@@ -29,3 +29,12 @@ huggingface-cache/
 *.swp
 Thumbs.db
 Desktop.ini
+
+# GitHub Actions self-hosted runner installation and runtime files
+actions-runner/
+_diag/
+run-helper.cmd
+run-helper.sh
+svc.sh
+config.sh
+config.cmd

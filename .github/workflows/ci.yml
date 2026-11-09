@@ -55,11 +55,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Pull published image
-        shell: pwsh
+        shell: powerhell
         run: docker pull $env:IMAGE
 
       - name: Replace container and verify service
-        shell: pwsh
+        shell: powershell
         run: |
           $ErrorActionPreference = 'Stop'
           $container = $env:CONTAINER
